@@ -79,12 +79,6 @@ class webContext(HTMLParser):
 	divcnt=0
 	cnt=1
 	
-	pTagFlag=False
-	h1TagFlag=False
-	h3TagFlag=False
-	ulTagFlag=False
-	liTagFlag=False
-	imgTagFlag=False
 	
 	def handle_starttag(self,tag,attr):
 		self.classTag=findattr(attr,"class","x-wiki-content")	#匹配x-wiki-content类
@@ -94,36 +88,25 @@ class webContext(HTMLParser):
 			self.contextFlag=True
 			
 		if self.contextFlag==True:
-			if tag == 'div':
-				self.divcnt=self.divcnt+1
 			
-			elif tag == 'p':
-				currentFile.write('<p>')
-				self.pTagFlag=True
-			elif tag == 'h1':
-				currentFile.write('<h1>')
-				self.h1TagFlag=True
-			elif tag == 'h3':
-				currentFile.write('<h3>')
-				self.h3TagFlag=True
-			elif tag == 'ul':
-				currentFile.write('<ul>')
-				self.u1TagFlag=True
-			elif tag == 'li':
-				currentFile.write('\t<li>')
-				self.liTagFlag=True
-			elif tag == 'img':								#图片处理
-				imgsrc=''
-				for each in attr:
-					if each[0] == 'src':
-						#print(each[1])
+			temp='<%s ' %(tag)
+			imgsrc=''
+			for each in attr:
+				if tag=='img' and each[0] == 'src':		#each为元组，元组拥有不可变性
+					if(each[1].find('http')!=0):
+						imgsrc='http://www.liaoxuefeng.com%s' %(each[1])
+					else:
 						imgsrc=each[1]
-				if(imgsrc.find('http')!=0):
-					temp='\t<img src=http://www.liaoxuefeng.com%s />' %(imgsrc)
-				else:
-					temp='\t<img src=%s />' %(imgsrc)
-				currentFile.write(temp)
-				self.imgTagFlag=True
+					temp=temp+each[0]+'='+imgsrc
+					break
+				#else:
+				#	temp=temp+each[0]+'='+each[1]
+			
+			if tag == 'img':
+				temp=temp+'/>'
+			else:
+				temp=temp+'>'
+			currentFile.write(temp)
 	
 	def handle_endtag(self,tag):
 		if self.contextFlag == True:
@@ -131,34 +114,13 @@ class webContext(HTMLParser):
 				self.cnt=self.cnt-1
 				if self.cnt==0:
 					self.contextFlag=False	#说明查找结束
-			elif tag == 'p':
-				currentFile.write('</p>\r\n')
-				self.pTagFlag=False
-			elif tag == 'h1':
-				currentFile.write('</h1>\r\n')
-				self.h1TagFlag=False
-			elif tag == 'h3':
-				currentFile.write('</h3>\r\n')
-				self.h3TagFlag=False
-			elif tag == 'ul':
-				currentFile.write('</ul>\r\n')
-				self.u1TagFlag=False
-			elif tag == 'li':
-				currentFile.write('</li>\r\n')
-				self.liTagFlag=False
-			elif tag == 'img':
-				self.imgTagFlag=False
+			
+			temp='</%s>\r\n' %(tag)
+			currentFile.write(temp)
 	
 	def handle_data(self,data):
 		if self.contextFlag == True:
-			if self.pTagFlag == True:
-				currentFile.write(data)
-			elif self.h1TagFlag == True:
-				currentFile.write(data)
-			elif self.h3TagFlag == True:
-				currentFile.write(data)
-			elif self.liTagFlag == True:
-				currentFile.write(data)
+			currentFile.write(data)
 
 
 def get_url_list():
