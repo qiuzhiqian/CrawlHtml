@@ -147,7 +147,7 @@ def main():
 	start = time.time()
 	get_url_list()
 	for i in range(len(titleList)):
-		filename=titleList[i].replace('/','_')
+		filename=titleList[i].replace('/','_')		#titleList中的内容会用来作为文件名，所以首先需要替换文件名不支持的字符
 		filename=filename.replace('-','_')
 		currentPath='%s\\%d_%s.html' %(os.path.dirname(__file__),i,filename)
 		print(currentPath)
